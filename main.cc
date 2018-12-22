@@ -124,30 +124,23 @@ static string & lbrk_pad_line(string & line, size_t width)
             // each will have "div"
             for (size_t i = 0; i < div; ++i)
                 for_each(words_in_line.begin(), words_in_line.end()-1, [&](string &w) { w.append(" ");});
+
+            // for the remaining spaces, place them uniformly within the sentence
             int state = 0; 
             int idx;
             int max_idx =  words_in_line.size() > 0 ? words_in_line.size() - 1 : 0;
             for (size_t j = 0; j < rem; ++j)
             {
-                if (state == 0)
-                {
-                    idx = (j * max_idx) / rem;
-                    state = 1;
-                }
-                else
-                {
-                    idx = ((rem - j) * max_idx) / rem;
-                    state = 0;
-                }
+                idx = (state == 0) ?
+                    (j * max_idx) / rem :
+                    ((rem - j) * max_idx) / rem;
                 words_in_line[idx].append(" ");
+                state = 1 - state;
             }
         }
         else
         {
-            div = diff;
-            rem = 0;
-            for (size_t i = 0; i < div; ++i)
-                words_in_line[0].append(" ");
+            words_in_line[0].append(string(diff, ' '));
         }
 
         line.clear();
