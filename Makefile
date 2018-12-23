@@ -1,10 +1,32 @@
-all: lbrk
+CXX         := g++
+CXXFLAGS    := -c -g -Wall -Wextra -Wpedantic -std=c++1z
+LDFLAGS     := -g -Wall -Wextra -Wpedantic -std=c++1z
 
-lbrk: main.cc
-	g++ -g -Wall -Wextra -std=c++1z $< -o $@
+PROGRAM     := lbrk
+OBJS        := lbrk.o main.o
+
+OUTDIR      := bin
+TARGET      := $(addprefix $(OUTDIR)/, $(PROGRAM))
+OBJS        := $(addprefix $(OUTDIR)/, $(OBJS))
+
+all: $(OUTDIR) $(TARGET)
+
+$(OUTDIR):
+	test -d $(OUTDIR) || mkdir -p $(OUTDIR)
+
+$(TARGET): $(OBJS) 
+	$(CXX) -o $@ $^ $(LDFLAGS)
+	rm -f $(shell basename $@)
+	ln -s $@
+
+$(OUTDIR)/%.o: %.cc %.hh
+	$(CXX) -o $@ $< $(CXXFLAGS)
+
+$(OUTDIR)/%.o: %.cc
+	$(CXX) -o $@ $< $(CXXFLAGS)
 
 clean:
-	rm -f lbrk *~
+	rm -rf $(TARGET) *~ $(OUTDIR)
 
 test:
 	@echo "Test: read from stdin behaves similarly as reading from file."
