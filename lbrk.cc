@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cctype>
+#include <typeinfo>
 #include <cstring>
 #include <iterator>
 #include <fstream>
@@ -157,11 +158,11 @@ string & lbrk::lbrk_pad_line(string & line)
     return line;
 }
 
-vector<string> lbrk::lbrk_adjust_line(string const& line, size_t width)
+vector<string> lbrk::lbrk_adjust_line(string const& line)
 {
     size_t len = line.length();
     vector<string> out{};
-    if (len <= width)
+    if (len <= m_width)
     {
         out.push_back(line);
     }
@@ -170,7 +171,7 @@ vector<string> lbrk::lbrk_adjust_line(string const& line, size_t width)
         string tmp{};
         for_each(begin(line), end(line), [&](char c)
         {
-            if (tmp.length() == width)
+            if (tmp.length() == m_width)
             {
                 out.push_back(lbrk_rtrim(tmp));
                 tmp.clear();
@@ -182,14 +183,14 @@ vector<string> lbrk::lbrk_adjust_line(string const& line, size_t width)
     }
     return out;
 }
-vector<string> lbrk::lbrk_fill_lines(string& str, size_t width)
+vector<string> lbrk::lbrk_fill_lines(string& str)
 {
     vector<string> words = lbrk_str2vec(str);
     vector<string> out{};
     string line{};
     for_each(begin(words), end(words), [&](string const &w)
     {
-        if  (line.length() + w.length() <= width)
+    if  (line.length() + w.length() <= m_width)
         {
             line.append(w);
         }
@@ -198,11 +199,11 @@ vector<string> lbrk::lbrk_fill_lines(string& str, size_t width)
             lbrk_rtrim(line);
             // line can be greater than width (unbreakable long words)
             // then we need to force a break here
-            vector<string> this_line = lbrk_adjust_line(line, width);
+            vector<string> this_line = lbrk_adjust_line(line);
             for_each(begin(this_line), end(this_line), [&out](string const& w) {out.push_back(w);});
             line = w;
         }
-        if (line.length() < width)
+        if (line.length() < m_width)
         {
             line.append(SPACESTR);
         }
@@ -215,14 +216,14 @@ vector<string> lbrk::lbrk_fill_lines(string& str, size_t width)
     return out;
 }
 
-vector<string> lbrk::lbrk_fill_to_width(string& str, size_t width)
+vector<string> lbrk::lbrk_fill_to_width(string& str)
 {
     vector<string> out{};
     string line{};
     size_t current = 0;
     for (auto const& c : str)
     {
-        if (current == width)
+        if (current == m_width)
         {
             out.push_back(line);
             line.clear();
@@ -253,27 +254,11 @@ lbrk::lbrk_just_t lbrk::lbrk_just_from_string(const char* str)
     return pol;
 }
 
-int lbrk::lbrk_from_file(const char* path)
+int lbrk::lbrk_process_line(string & line)
 {
-    ifstream ifs{ path };
-    string str{};
-
-    // Open the file
-    if (!ifs.is_open())
-    {
-        cerr << "Could not open file: " << strerror(errno) << endl;
-        return 2;
-    }
-
-    // Reserve some memory up-front
-    ifs.seekg(0, ios::end);
-    str.reserve(ifs.tellg());
-    ifs.seekg(0, ios::beg);
-    str.assign( istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() );
-
     // Preprocess the characters:
     // Do the format preprocessing (uppers, lowers, etc)
-    transform(begin(str), end(str), begin(str), [&] (char& c) -> char
+    transform(begin(line), end(line), begin(line), [&] (char& c) -> char
     {
         if (isspace(c))
         {
@@ -290,12 +275,12 @@ int lbrk::lbrk_from_file(const char* path)
         return c;
     });
 
-    vector<string> words = lbrk_str2vec(str);
+    vector<string> words = lbrk_str2vec(line);
     vector<string> out{};
 
     out = (!m_break_policy) ?
-        lbrk_fill_lines(str, m_width) :
-        lbrk_fill_to_width(str, m_width);
+        lbrk_fill_lines(line) :
+        lbrk_fill_to_width(line);
 
     /* At this point:
      *
@@ -328,32 +313,36 @@ int lbrk::lbrk_from_file(const char* path)
     return 0;
 }
 
-int lbrk::lbrk_from_stdin()
+int lbrk::lbrk_core(istream & is)
 {
-    DEBUG("Parsing from stdin\n");
-    string line{};
-    while (getline(cin, line))
+    string str{};
+
+    if (typeid(is) == typeid(ifstream))
     {
-        // Preprocess the characters
-        transform(begin(line), end(line), begin(line), [&] (char &c) -> char
+        ifstream& ifs = reinterpret_cast<ifstream&>(is);
+        if (!ifs.is_open())
         {
-            if (isspace(c))
-            {
-                if (c == TAB && m_tab_policy)
-                    c = SPACE;
-            }
-            else
-            {
-                if (m_upper)
-                    c = toupper(c);
-                if (m_lower)
-                    c = tolower(c);
-            }
-            return c;
-        });
-        cout << lbrk_pad_line(line)
-             << (m_endings ? DELIM : "") 
-             << endl;
+            cerr << "Could not open file: " << strerror(errno) << endl;
+            return 2;
+        }
+
+        // Reserve some memory up-front
+        ifs.seekg(0, ios::end);
+        str.reserve(ifs.tellg());
+        ifs.seekg(0, ios::beg);
+        str.assign( istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() );
+
+        // Process it
+        lbrk_process_line(str);
+    }
+    else if (typeid(is) == typeid(cin))
+    {
+        DEBUG("Parsing from stdin\n");
+        string line{};
+        while (getline(cin, line))
+        {
+            lbrk_process_line(line);
+        }
     }
     return 0;
 }

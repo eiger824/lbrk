@@ -10,6 +10,8 @@
 #ifndef LBRK_H_
 #define LBRK_H_
 
+#include <vector>
+
 using namespace std;
 
 /********************** Macros *************************/
@@ -97,17 +99,65 @@ class lbrk
          */
         string & lbrk_pad_line(string & line);
 
+        /*
+         * Function:    lbrk_adjust_line
+         * Brief:       Given a string, it adjusts its contents to the previously specified
+         *              width
+         * @param line: The string to adjust
+         * Returns:     A string vector with words in every entry
+         */
+        vector<string> lbrk_adjust_line(string const& line);
 
-        vector<string> lbrk_adjust_line(string const& line, size_t width);
-        vector<string> lbrk_fill_lines(string& str, size_t width);
-        vector<string> lbrk_fill_to_width(string& str, size_t width);
+        /*
+         * Function:    lbrk_fill_lines
+         * Brief:       Given a string, it adjusts its contents to the previously specified
+         *              width
+         * @param line: The string to adjust
+         * Returns:     A string vector with words in every entry
+         */
+        vector<string> lbrk_fill_lines(string& str);
 
-        int lbrk_from_file(const char* path);
-        int lbrk_from_stdin();
+        /*
+         * Function:    lbrk_fill_to_width
+         * Brief:       Given a string, it splits it into equally sized parts of exactly
+         *              width characters
+         * @param str:  The string to tokenize
+         * Returns:     A vector contanining entries of exactly the specified width
+         */
+        vector<string> lbrk_fill_to_width(string& str);
+
+        /*************** Parser function ***************/
+        /*
+         * Function:  lbrk_core
+         * Brief:     This is the central function of lbrk. Given an input stream,
+         *            it processes text lines.
+         * @param is: A reference to the input stream
+         * Returns:   0 on success, >0 otherwise
+         */
+        int lbrk_core(istream & is);
+        int lbrk_process_line(string & line);
+
+        /*
+         * Function:   lbrk_just_from_string
+         * Brief:      Given a justification policy in string format, it returns the
+         *             correspoding lbrk_just_t type
+         * @param str: The string to convert
+         * Returns:    The associated enum type
+         */
         lbrk_just_t lbrk_just_from_string(const char* str);
 
+        /*
+         * Function:      lbrk_sanity_check
+         * Brief:         Identifies possible misconfigurations on the object to be
+         *                used for manipulating textx
+         * @param reason: A reference to a string which will be updated with the reason
+         *                of failure, should it occur
+         * Returns:       True on success, i.e., when no missconfigurations have been
+         *                detected, false otherwise
+         */
         bool lbrk_sanity_check(string &reason);
 
+        /******************** Getters && Setters ********************/
         inline void lbrk_set_debug(bool d) { m_dbg = d; }
         inline void lbrk_set_tab(bool t) {m_tab_policy = t;}
         inline void lbrk_set_upper(bool u) {m_upper = u;}

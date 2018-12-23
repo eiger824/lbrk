@@ -1,15 +1,8 @@
 #include <iostream>
 #include <string>
-#include <cassert>
-#include <algorithm>
-#include <sstream>
-#include <cctype>
-#include <cstring>
-#include <iterator>
 #include <fstream>
-#include <vector>
+#include <cstring>
 
-#include <libgen.h>
 #include <getopt.h>
 
 #include "lbrk.hh"
@@ -74,13 +67,19 @@ int main(int argc, char* argv[])
         cerr << reason << endl;
         exit(1);
     }
-    if (optind + 1 == argc)
+    if (optind < argc)
     {
-        err = o->lbrk_from_file( argv[optind] );
+        for (int i = optind; i < argc; ++i)
+        {
+            if (!(optind + 1 == argc))
+                cout << "File: " << argv[i] << endl;
+            ifstream ifs { argv[i] };
+            err = o->lbrk_core( ifs );
+        }
     }
     else
     {
-        err = o->lbrk_from_stdin();
+        err = o->lbrk_core( cin );
     }
 
     // Free up the used object
