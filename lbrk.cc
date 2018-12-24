@@ -190,7 +190,7 @@ vector<string> lbrk::lbrk_fill_lines(string& str)
     string line{};
     for_each(begin(words), end(words), [&](string const &w)
     {
-    if  (line.length() + w.length() <= m_width)
+    if (line.length() + w.length() <= m_width)
         {
             line.append(w);
         }

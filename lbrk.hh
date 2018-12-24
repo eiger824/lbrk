@@ -126,7 +126,7 @@ class lbrk
          */
         vector<string> lbrk_fill_to_width(string& str);
 
-        /*************** Parser function ***************/
+        /*************** Core functions ***************/
         /*
          * Function:  lbrk_core
          * Brief:     This is the central function of lbrk. Given an input stream,
@@ -135,7 +135,15 @@ class lbrk
          * Returns:   0 on success, >0 otherwise
          */
         int lbrk_core(istream & is);
+
+        /*
+         * Function:    lbrk_process_line
+         * Brief:       Entry function to process the parsed line.
+         * @param line: A reference to the string containing the line to process
+         * Returns:     0 on success, >0 otherwise
+         */
         int lbrk_process_line(string & line);
+        /*************************************************/
 
         /*
          * Function:   lbrk_just_from_string
