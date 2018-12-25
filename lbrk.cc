@@ -315,7 +315,7 @@ int lbrk::lbrk_process_line(string & line)
 
 int lbrk::lbrk_core(istream & is)
 {
-    string str{};
+    string line{};
 
     if (typeid(is) == typeid(ifstream))
     {
@@ -326,23 +326,23 @@ int lbrk::lbrk_core(istream & is)
             return 2;
         }
 
-        // Reserve some memory up-front
-        ifs.seekg(0, ios::end);
-        str.reserve(ifs.tellg());
-        ifs.seekg(0, ios::beg);
-        str.assign( istreambuf_iterator<char>(ifs), istreambuf_iterator<char>() );
-
-        // Process it
-        lbrk_process_line(str);
+        // Go through the lines and process them
+        while (getline(ifs, line))
+        {
+            lbrk_process_line(line);
+        }
     }
     else if (typeid(is) == typeid(cin))
     {
         DEBUG("Parsing from stdin\n");
-        string line{};
         while (getline(cin, line))
         {
             lbrk_process_line(line);
         }
+    }
+    else
+    {
+        DEBUG("Unsupported input stream %p\n", (void*)&is);
     }
     return 0;
 }
