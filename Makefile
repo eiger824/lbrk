@@ -1,13 +1,14 @@
-CXX         := g++
-CXXFLAGS    := -c -g -Wall -Wextra -Wpedantic -std=c++1z
-LDFLAGS     := -g -Wall -Wextra -Wpedantic -std=c++1z
+CXX          := g++
+CXXFLAGS     := -c -g -Wall -Wextra -Wpedantic -std=c++1z
+LDFLAGS      := -g -Wall -Wextra -Wpedantic -std=c++1z
 
-PROGRAM     := lbrk
-OBJS        := lbrk.o main.o
+PROGRAM      := lbrk
+OBJS         := lbrk.o main.o
 
-OUTDIR      := bin
-TARGET      := $(addprefix $(OUTDIR)/, $(PROGRAM))
-OBJS        := $(addprefix $(OUTDIR)/, $(OBJS))
+OUTDIR       := bin
+INSTALL_DEST := /usr/bin
+TARGET       := $(addprefix $(OUTDIR)/, $(PROGRAM))
+OBJS         := $(addprefix $(OUTDIR)/, $(OBJS))
 
 all: $(OUTDIR) $(TARGET)
 
@@ -24,6 +25,12 @@ $(OUTDIR)/%.o: %.cc %.hh
 
 $(OUTDIR)/%.o: %.cc
 	$(CXX) -o $@ $< $(CXXFLAGS)
+
+install:
+	install -m0755 $(PROGRAM) $(INSTALL_DEST)
+
+uninstall:
+	test -f $(INSTALL_DEST)/$(PROGRAM) && rm -f $(INSTALL_DEST)/$(PROGRAM)
 
 clean:
 	rm -rf $(TARGET) *~ $(OUTDIR)
