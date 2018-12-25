@@ -1,2 +1,4 @@
-This is a very long line written in a sample file. The program that we are working on right now shall be able to split this big ass long sentence into fixed-size sentences, which can be useful when there is a need of indenting or justifying a text. For instance, LaTeX lines are usually very long, so these may need to be split into several shorter sentences so they are easier to be read and understood. The program shall not be fooled by    tabs        nor    weird spaces.
+This is a very long line written in a sample file. The program that we are working on right now shall be able to split this big ass long sentence into fixed-size sentences, which can be useful when 
+there is a need of indenting or justifying a text. For instance, LaTeX lines are usually very long, so these may need to be split into several shorter sentences so they are easier to be read and 
+understood. The program shall not be fooled by		tabs	nor    weird spaces.
 
