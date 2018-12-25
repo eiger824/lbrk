@@ -30,4 +30,4 @@ clean:
 
 test:
 	@echo "Test: read from stdin behaves similarly as reading from file."
-	bash -c "diff <(./lbrk -tuw40 foo.txt) <(cat foo.txt | ./lbrk -tuw40)"
+	bash -c "diff <(./lbrk -tuw40 data/foo.txt) <(cat data/foo.txt | ./lbrk -tuw40)"
