@@ -100,31 +100,23 @@ class lbrk
         string & lbrk_pad_line(string & line);
 
         /*
-         * Function:    lbrk_adjust_line
+         * Function:    lbrk_fit_to_width
          * Brief:       Given a string, it adjusts its contents to the previously specified
-         *              width
+         *              width, without caring about breaking words
          * @param line: The string to adjust
          * Returns:     A string vector with words in every entry
          */
-        vector<string> lbrk_adjust_line(string const& line);
+        vector<string> lbrk_fit_to_width(string const& line);
 
         /*
-         * Function:    lbrk_fill_lines
+         * Function:    lbrk_respect_to_width
          * Brief:       Given a string, it adjusts its contents to the previously specified
-         *              width
+         *              width. This function will never break words unless strictly necessary,
+         *              i.e., when the word's length is greater than the specified width
          * @param line: The string to adjust
          * Returns:     A string vector with words in every entry
          */
-        vector<string> lbrk_fill_lines(string& str);
-
-        /*
-         * Function:    lbrk_fill_to_width
-         * Brief:       Given a string, it splits it into equally sized parts of exactly
-         *              width characters
-         * @param str:  The string to tokenize
-         * Returns:     A vector contanining entries of exactly the specified width
-         */
-        vector<string> lbrk_fill_to_width(string& str);
+        vector<string> lbrk_respect_to_width(string& str);
 
         /*************** Core functions ***************/
         /*

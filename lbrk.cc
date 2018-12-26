@@ -158,7 +158,7 @@ string & lbrk::lbrk_pad_line(string & line)
     return line;
 }
 
-vector<string> lbrk::lbrk_adjust_line(string const& line)
+vector<string> lbrk::lbrk_fit_to_width(string const& line)
 {
     size_t len = line.length();
     vector<string> out{};
@@ -183,14 +183,17 @@ vector<string> lbrk::lbrk_adjust_line(string const& line)
     }
     return out;
 }
-vector<string> lbrk::lbrk_fill_lines(string& str)
+vector<string> lbrk::lbrk_respect_to_width(string& str)
 {
-    vector<string> words = lbrk_str2vec(str);
+
+    //TODO: fix this!! the current implementation is not entirely correct
     vector<string> out{};
+
+    vector<string> words = lbrk_str2vec(str);
     string line{};
     for_each(begin(words), end(words), [&](string const &w)
     {
-    if (line.length() + w.length() <= m_width)
+        if (line.length() + w.length() <= m_width)
         {
             line.append(w);
         }
@@ -199,7 +202,7 @@ vector<string> lbrk::lbrk_fill_lines(string& str)
             lbrk_rtrim(line);
             // line can be greater than width (unbreakable long words)
             // then we need to force a break here
-            vector<string> this_line = lbrk_adjust_line(line);
+            vector<string> this_line = lbrk_fit_to_width(line);
             for_each(begin(this_line), end(this_line), [&out](string const& w) {out.push_back(w);});
             line = w;
         }
@@ -211,32 +214,10 @@ vector<string> lbrk::lbrk_fill_lines(string& str)
     if (!line.empty())
     {
         // Append what's left on "line"
-        out.push_back(line);
+        vector<string> this_line = lbrk_fit_to_width(line);
+        for_each(begin(this_line), end(this_line), [&out](string const& w) {out.push_back(w);});
     }
-    return out;
-}
 
-vector<string> lbrk::lbrk_fill_to_width(string& str)
-{
-    vector<string> out{};
-    string line{};
-    size_t current = 0;
-    for (auto const& c : str)
-    {
-        if (current == m_width)
-        {
-            out.push_back(line);
-            line.clear();
-            current = 0;
-        }
-        line.append(string(1, c));
-        current++;
-    }
-    if (!line.empty())
-    {
-        // Append what's left on "line"
-        out.push_back(line);
-    }
     return out;
 }
 
@@ -275,19 +256,10 @@ int lbrk::lbrk_process_line(string & line)
         return c;
     });
 
-    vector<string> words = lbrk_str2vec(line);
-    vector<string> out{};
-
-    out = (!m_break_policy) ?
-        lbrk_fill_lines(line) :
-        lbrk_fill_to_width(line);
-
-    /* At this point:
-     *
-     * => "words" contains all the input words
-     * => "out"   contains the broken lines at the
-     *            specified width
-     */
+    // "out" contains the broken lines at the specified width
+    vector<string> out = (!m_break_policy) ?
+                         lbrk_respect_to_width(line) :
+                         lbrk_fit_to_width(line);
 
     // Do the processing (if needed)
     for_each(begin(out), end(out), [&](string& line)
@@ -296,11 +268,8 @@ int lbrk::lbrk_process_line(string & line)
         // length "width". This will be the printed line
         if (!m_break_policy)
         {
-            string out{};
-            out.reserve(m_width);
-            out = line;
             // Pad & print
-            cout << lbrk_pad_line(out)
+            cout << lbrk_pad_line(line)
                  << (m_endings ? DELIM : "") 
                  << endl;
         }
