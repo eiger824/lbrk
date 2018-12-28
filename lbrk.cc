@@ -2,7 +2,8 @@
  * Filename:      lbrk.h
  *
  * Author:        Santiago Pagola <santipagola@gmail.com>
- * Brief:         Line-breaker (lbrk) - A simple tool to break text lines in a visually nice way
+ * Brief:         Line-breaker (lbrk) - A simple tool to break text lines in a
+ *                visually nice way
  *                Implementation file
  * Last modified: Sun Dec 23 10:59:05 CET 2018
 */
@@ -224,11 +225,15 @@ vector<string> lbrk::lbrk_respect_to_width(string& str)
 lbrk::lbrk_just_t lbrk::lbrk_just_from_string(const char* str)
 {
     lbrk_just_t pol;
-    if (!strcmp(str, "left"))
+    string conv{str};
+    // transform to lowercase
+    transform(conv.begin(), conv.end(), conv.begin(), [](const char c) -> char { return tolower(c);});
+
+    if (conv == "left")
         pol = LBRK_JUST_LEFT;
-    else if (!strcmp(str, "center"))
+    else if (conv == "center")
         pol = LBRK_JUST_CENTER;
-    else if (!strcmp(str, "right"))
+    else if (conv == "right")
         pol = LBRK_JUST_RIGHT;
     else
         pol = LBRK_JUST_UNKNOWN;
@@ -326,7 +331,7 @@ bool lbrk::lbrk_sanity_check(string& reason)
     // justification and g_break not compatible...
     if (m_just_policy != lbrk::LBRK_JUST_UNKNOWN && m_break_policy)
     {
-        reason = "Justification mode cannot be mixed with breaking lines";
+        reason = "Justification mode cannot be mixed with breaking lines (use -r switch too)";
         return false;
     }
     // Set a valid default justification mode if words are to be respected 

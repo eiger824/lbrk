@@ -15,6 +15,7 @@ int main(int argc, char* argv[])
     int err;
 
     lbrk *o = new lbrk();
+    lbrk::lbrk_just_t policy;
 
     // Parse options
     while (( c = getopt(argc, argv, "dehj:lrtuw:")) != EOF)
@@ -31,15 +32,14 @@ int main(int argc, char* argv[])
                 o->lbrk_usage(argv[0]);
                 exit(0);
             case 'j':
-                if (strcmp(optarg, "left") != 0 &&
-                        strcmp(optarg, "right") != 0 &&
-                        strcmp(optarg, "center") != 0)
+                policy = o->lbrk_just_from_string(optarg);
+                if (policy == lbrk::LBRK_JUST_UNKNOWN)
                 {
                     cerr << "Invalid justification mode \"" << optarg << "\"." << endl;
                     o->lbrk_usage(argv[0]);
                     exit(1);
                 }
-                o->lbrk_set_just(o->lbrk_just_from_string(optarg));
+                o->lbrk_set_just(policy);
                 break;
             case 'l':
                 o->lbrk_set_lower(true);
