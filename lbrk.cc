@@ -288,7 +288,7 @@ int lbrk::lbrk_core(istream & is)
 
     if (typeid(is) == typeid(ifstream))
     {
-        ifstream& ifs = reinterpret_cast<ifstream&>(is);
+        ifstream& ifs = dynamic_cast<ifstream&>(is);
         if (!ifs.is_open())
         {
             cerr << "Could not open file: " << strerror(errno) << endl;
