@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     }
 
     // Free up the used object
-    delete[] o;
+    delete o;
 
     return err;
 }
